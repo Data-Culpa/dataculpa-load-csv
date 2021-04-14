@@ -27,6 +27,7 @@
 
 import argparse
 import dotenv
+import json
 import logging
 import os
 import uuid
@@ -66,6 +67,7 @@ def NewDataCulpaHandle(pipeline_stage=None):
                             protocol=gConfig.dc_protocol, 
                             dc_host=gConfig.dc_host, 
                             dc_port=gConfig.dc_port)
+
     return dc
 
 gConfig = None
@@ -73,8 +75,9 @@ gConfig = None
 def main():
 
     ap = argparse.ArgumentParser()
-    ap.add_argument("-e", "--env", help="Use provided env file instead of default .env")
-    ap.add_argument("-f", "--csv", help="CSV file to load.")
+    ap.add_argument("-e", "--env",  help="Use provided env file instead of default .env")
+    ap.add_argument("-f", "--csv",  help="CSV file to load.")
+    ap.add_argument("-m", "--meta", help="Metadata structure in JSON to store with the data.")
 
     args = ap.parse_args()
 
@@ -103,10 +106,29 @@ def main():
     global gConfig
     gConfig = Config()
 
+    meta_decode = None
+    if args.meta:
+        meta_decode = json.loads(args.meta)
+    # endif
+
     dc = NewDataCulpaHandle()
+    
+    if meta_decode is not None:
+        dc.queue_metadata(meta_decode)
+    # endif
+
     worked = dc.load_csv_file(args.csv)
-    print("worked:", worked)
+    if not worked:
+        sys.stderr.write("worked: %s\n" % worked)
+        os._exit(2)
+
     dc.queue_commit()
+    if dc.has_errors():
+        sys.stderr.write("Errors while processing data:\n")
+        for e in dc.get_errors():
+            sys.stderr.write("%s\n" % e)
+        os._exit(3)
+    # endif
 
     return
 
