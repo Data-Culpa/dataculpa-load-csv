@@ -52,7 +52,7 @@ class Config:
         self.pipeline_version   = os.environ.get('DC_PIPELINE_VERSION', 'default')
         self.dc_host            = os.environ.get('DC_HOST')
         self.dc_port            = os.environ.get('DC_PORT')
-        self.dc_protocol        = os.environ.get('DC_PROTOCOL')
+        self.dc_protocol        = os.environ.get('DC_PROTOCOL', 'http')
         self.dc_secret          = os.environ.get('DC_SECRET')
 
 
@@ -73,7 +73,6 @@ def NewDataCulpaHandle(pipeline_stage=None):
 gConfig = None
 
 def main():
-
     ap = argparse.ArgumentParser()
     ap.add_argument("-e", "--env",  help="Use provided env file instead of default .env")
     ap.add_argument("-f", "--csv",  help="CSV file to load.")
@@ -89,15 +88,16 @@ def main():
         os._exit(1)
         return
     # endif
-
+    
     if not args.csv:
-        sys.stderr.write("Error: no csv file specified to load.");
+        sys.stderr.write("Error: no csv file specified to load.\n");
         os._exit(2)
         return
     # endif
 
     dotenv.load_dotenv(env_path)
     
+    print("Configuration:")
     d = os.environ
     for k, v in d.items():
         if k.startswith("DC_"):
@@ -129,7 +129,8 @@ def main():
             sys.stderr.write("%s\n" % e)
         os._exit(3)
     # endif
-
+    
+    print("done")
     return
 
 
