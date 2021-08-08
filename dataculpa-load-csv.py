@@ -61,9 +61,9 @@ def NewDataCulpaHandle(pipeline_stage=None):
         pipeline_stage = gConfig.pipeline_stage
 
     dc = DataCulpaValidator(gConfig.pipeline_name,
-                            pipeline_environment=gConfig.pipeline_env,
-                            pipeline_stage=pipeline_stage,
-                            pipeline_version=gConfig.pipeline_version,
+                            watchpoint_environment=gConfig.pipeline_env,
+                            watchpoint_stage=pipeline_stage,
+                            watchpoint_version=gConfig.pipeline_version,
                             protocol=gConfig.dc_protocol, 
                             dc_host=gConfig.dc_host, 
                             dc_port=gConfig.dc_port)
